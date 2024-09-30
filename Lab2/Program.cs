@@ -1,16 +1,27 @@
-﻿namespace Lab2
+﻿using Lab2.Models;
+using Microsoft.IdentityModel.Tokens;
+
+namespace Lab2
 {
     internal class Program
     {
-        static void Print<T>(string sqlText, IEnumerable<T> items)
+        static void Print<T>(string sqlText, IEnumerable<T>? items)
         {
             Console.WriteLine(sqlText);
             Console.WriteLine("Записи: ");
-            foreach (var item in items)
+            if(!items.IsNullOrEmpty())
             {
-                Console.WriteLine(item!.ToString());
+                foreach (var item in items)
+                {
+                    Console.WriteLine(item!.ToString());
+                }
+            }
+            else
+            {
+                Console.WriteLine("Пусто");
             }
             Console.WriteLine();
+            Console.WriteLine("Нажмите любую клавишу");
             Console.ReadKey();
         }
 
@@ -59,7 +70,7 @@
             var queryLINQ5 = from e in db.Employees
                              join w in db.WorkLogs
                              on e.EmployeeId equals w.EmployeeId
-                             where w.WorkExperience <= 15
+                             where w.WorkExperience < 10
                              select new
                              {
                                  Имя_Работника = e.Name,
@@ -71,6 +82,97 @@
             Print(comment, queryLINQ5.ToList());
         }
 
+        static void Insert(CinemaContext db)
+        {
+            Genre genre = new Genre
+            {
+                Name = "New genre 1",
+                Description = "New description"
+            };
+            db.Genres.Add(genre);
+            db.SaveChanges();
+            string comment = "Выберка жанров после вставки нового жанра";
+            var queryLINQ1 = from g in db.Genres
+                             where g.Name == "New genre 1"
+                             select new
+                             {
+                                 Нзавание_Жанра = g.Name,
+                                 Описание_Жанра = g.Description
+                             };
+            Print(comment, queryLINQ1.ToList());
+
+            Movie movie = new Movie
+            {
+                Title = "New movie 1",
+                Duration = new TimeOnly(2,13,15),
+                ProductionCompany = "New production company",
+                Country = "New country",
+                AgeRestriction = 18,
+                Description = "New description",
+                GenreId = genre.GenreId,
+            };
+            db.Movies.Add(movie);
+            db.SaveChanges();
+            comment = "Выберка фильмов после вставки нового фильма";
+            var queryLINQ2 = from m in db.Movies
+                             where m.Title == "New movie 1"
+                             select new
+                             {
+                                 Название_Фильма = m.Title,
+                                 Продолжительность_Фильма = m.Description,
+                                 Компания_производитель = m.ProductionCompany,
+                                 Страна = m.Country,
+                                 Возрастное_ограничение = m.AgeRestriction,
+                                 Описание_Фильма = m.Description,
+                                 Нзавание_Жанра = m.Genre.Name,
+                             };
+            Print(comment, queryLINQ2.ToList());
+        }
+
+        static void Delete(CinemaContext db)
+        {
+            string genreName = "New genre 1";
+            var genre = db.Genres.Where(g => g.Name == genreName);
+
+            if (genre != null)
+            {
+                db.Genres.RemoveRange(genre);
+                db.SaveChanges();
+            }
+            string comment = "Выберка жанров после удаления жанра";
+            var queryLINQ1 = from g in db.Genres
+                             where g.Name == "New genre 1"
+                             select new
+                             {
+                                 Нзавание_Жанра = g.Name,
+                                 Описание_Жанра = g.Description
+                             };
+            Print(comment, queryLINQ1.ToList());
+
+            string movieTitle = "New movie 1";
+            var movies = db.Movies.Where(m => m.Title == movieTitle);
+
+            if(movies != null)
+            {
+                db.Movies.RemoveRange(movies);
+                db.SaveChanges();
+            }
+            comment = "Выберка фильмов после удаления фильмов";
+            var queryLINQ2 = from m in db.Movies
+                             where m.Title == "New movie 1"
+                             select new
+                             {
+                                 Название_Фильма = m.Title,
+                                 Продолжительность_Фильма = m.Description,
+                                 Компания_производитель = m.ProductionCompany,
+                                 Страна = m.Country,
+                                 Возрастное_ограничение = m.AgeRestriction,
+                                 Описание_Фильма = m.Description,
+                                 Нзавание_Жанра = m.Genre.Name,
+                             };
+            Print(comment, queryLINQ2.ToList());
+        }
+
         static void Main(string[] args)
         {
             using(var db = new CinemaContext())
@@ -78,6 +180,14 @@
                 Console.WriteLine("Будет выполнена выборка данных (нажмите любую клавишу) ============");
                 Console.ReadKey();
                 Select(db);
+
+                Console.WriteLine("Будет выполнена вставка данных (нажмите любую клавишу) ============");
+                Console.ReadKey();
+                Insert(db);
+
+                Console.WriteLine("Будет выполнено удаление данных (нажмите любую клавишу) ============");
+                Console.ReadKey();
+                Delete(db);
             }
         }
     }
