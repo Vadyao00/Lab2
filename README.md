@@ -1,2 +1,2 @@
 # Lab2
-[![build and test](https://github.com/Olgasn/FuelStationSolution/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/Olgasn/FuelStationSolution/actions/workflows/build-and-test.yml)
+[![build and test](https://github.com/Vadyao00/Lab2_RPBDIS/actions/workflows/main.yml/badge.svg)](https://github.com/Vadyao00/Lab2_RPBDIS/actions/workflows/main.yml)
