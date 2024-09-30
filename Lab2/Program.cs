@@ -173,6 +173,31 @@ namespace Lab2
             Print(comment, queryLINQ2.ToList());
         }
 
+        static void Update(CinemaContext db)
+        {
+            int workExp = 8;
+            var workLogs = db.WorkLogs.Where(w => w.WorkExperience == workExp);
+            if(!workLogs.IsNullOrEmpty())
+            {
+                foreach( var w in workLogs)
+                {
+                    w.WorkHours = 13;
+                }
+                db.SaveChanges();
+            }
+
+            string comment = "Выберка после обновления";
+            var queryLINQ1 = from w in db.WorkLogs
+                             where w.WorkExperience == workExp
+                             select new
+                             {
+                                 Имя_Работника = w.Employee.Name,
+                                 Опыт_работы = w.WorkExperience,
+                                 Количество_часов = w.WorkHours
+                             };
+            Print(comment, queryLINQ1.ToList());
+        }
+
         static void Main(string[] args)
         {
             using(var db = new CinemaContext())
@@ -188,6 +213,10 @@ namespace Lab2
                 Console.WriteLine("Будет выполнено удаление данных (нажмите любую клавишу) ============");
                 Console.ReadKey();
                 Delete(db);
+
+                Console.WriteLine("Будет выполнено обновление данных (нажмите любую клавишу) ============");
+                Console.ReadKey();
+                Update(db);
             }
         }
     }
